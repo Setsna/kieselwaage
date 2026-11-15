@@ -4,7 +4,7 @@ Lernplattform zum Wiegen für die Klasse 3 (8 bis 9 Jahre).
 Die Kinder vergleichen Dinge auf einer Tafelwaage, bringen sie mit Gewichtssteinen ins Gleichgewicht, rechnen mit Gramm und Kilogramm und prüfen Behauptungen. Sie vermuten zuerst und wiegen dann.
 Begleiter ist Flint, ein Seeotter. Es gibt keine Punkte, keinen Zeitdruck und keine Ranglisten.
 
-**Adresse:** https://setsna.github.io/kieselwaage/ (noch nicht veröffentlicht)
+**Adresse:** https://setsna.github.io/kieselwaage/
 
 Schwesterseite der [Lernlagune](https://lernlagune.de), zusammen mit Perlentaucher, KI-Korallenriff, Riff-Akten, Flaschenpost, Seesternwerkstatt, Zahlenschwarm und Chancenbucht.
 
@@ -60,4 +60,5 @@ Die Kinder melden sich mit demselben Zugangscode an wie im Perlentaucher. Gespei
 
 ## Stand
 
-- 15.11.2026: alle vier Stationen, Logbuch und Urkunde lokal fertig. Noch nicht veröffentlicht.
+- 15.11.2026: alle vier Stationen, Logbuch und Urkunde lokal fertig.
+- 16.11.2026: veröffentlicht (`?v=4`).
