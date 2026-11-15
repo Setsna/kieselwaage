@@ -1,0 +1,273 @@
+/* Kieselwaage: Stationen und Waage (Etappe 2).
+   Die Waage steht auf einem hellen Arbeitstisch (Abweichung von der Lagune wie in der Chancenbucht, Mini-Spec Etappe 1):
+   Inhaltsfarben gedämpft, Kiesel und Muscheln nie nur über Farbe unterscheidbar (Form, Muster, Zahl).
+   Bewegung nur über transform, 220 ms; bei reduzierter Bewegung springt die Waage. */
+
+/* ---------- Die Waage (js/waage-bild.js) ---------- */
+.waage-bild { display: block; width: 100%; max-width: 36rem; height: auto; margin: 0 auto; overflow: visible; }
+.waage-bild--klein { max-width: 24rem; }
+
+.wb-gehaeuse { fill: #5f7a86; }
+.wb-gehaeuse-kante { fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 2; }
+.wb-fenster { fill: #eef2f1; stroke: #42606d; stroke-width: 2; }
+.wb-skala { fill: none; stroke: var(--navy); stroke-width: 2; stroke-linecap: round; }
+.wb-zeiger { transform-box: view-box; transform-origin: 240px 252px; transition: transform var(--dauer) var(--kurve); }
+.wb-zeiger__nadel { fill: var(--navy); }
+.wb-drehpunkt { fill: var(--navy); stroke: #eef2f1; stroke-width: 2; }
+
+.wb-riegel { transition: transform var(--dauer) var(--kurve), opacity var(--dauer) var(--kurve); }
+.wb-riegel__balken { fill: #b5532f; stroke: #6b2c16; stroke-width: 1.5; }
+.wb-riegel__knopf { fill: #e9d9c9; stroke: #6b2c16; stroke-width: 1.5; }
+.wb-riegel--offen { opacity: 0; transform: translateX(30px); }
+
+.wb-schale { transition: transform var(--dauer) var(--kurve); }
+.wb-stuetze { fill: #42606d; }
+.wb-schale__teller { fill: #d9dfe2; stroke: #42606d; stroke-width: 2; }
+
+/* Kiesel: helle Steinfarben, Zahl in Navy (Kontrast AA auf allen drei Grundfarben) */
+.wb-kiesel__grund { fill: #ddd6c6; }
+.wb-kiesel--oval .wb-kiesel__grund { fill: #cfd9dc; }
+.wb-kiesel--flach .wb-kiesel__grund { fill: #e4d8bf; }
+.wb-kiesel__muster { stroke: none; }
+.wb-muster { stroke: rgba(11, 49, 85, 0.28); stroke-width: 2; }
+.wb-muster-punkt { fill: rgba(11, 49, 85, 0.28); }
+.wb-kiesel__rand { fill: none; stroke: #4c5a60; stroke-width: 2; }
+.wb-kiesel__zahl { font: 700 16px var(--schrift-text); text-anchor: middle; fill: var(--navy); paint-order: stroke; stroke: rgba(255, 255, 255, 0.7); stroke-width: 3; }
+
+/* Muscheln: Form und Linien unterscheiden sie, die Farbe hilft nur */
+.wb-muschel__grund { fill: #efe1cc; }
+.wb-muschel--jakobs .wb-muschel__grund { fill: #e9cdb8; }
+.wb-muschel--schnecke .wb-muschel__grund { fill: #e4d6b4; }
+.wb-muschel--mies .wb-muschel__grund { fill: #b9c3cf; }
+.wb-muschel__linien { fill: none; stroke: #6d5843; stroke-width: 1.6; stroke-linecap: round; }
+.wb-muschel__rand { fill: none; stroke: #4f4033; stroke-width: 2; }
+
+/* Gegenstände: Bild im runden Rahmen */
+.wb-ding__grund { fill: #f5f3ec; }
+.wb-ding__rand { fill: none; stroke: #42606d; stroke-width: 2.5; }
+
+.waage-bild--ruhig .wb-zeiger, .waage-bild--ruhig .wb-schale, .waage-bild--ruhig .wb-riegel { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .wb-zeiger, .wb-schale, .wb-riegel { transition: none; }
+}
+
+/* ===== Allgemeine Stationsteile, übernommen aus der Chancenbucht css/station.css (15.11.2026), Würfi durch Flint ersetzt ===== */
+/* ---------- Kopf der Station ---------- */
+.kopf--station { max-width: 68rem; margin-bottom: var(--a-m); }
+.kopf--station::before { inset: -1.5rem -2rem; }
+.kopf__reihe { display: flex; align-items: center; justify-content: space-between; gap: var(--a-m); }
+.kopf__mitte { flex: 1; min-width: min-content; }   /* nie schmaler als das längste Titelwort (200 % Text) */
+.kopf--station h1 { font-size: var(--gr-title); }
+.kopf__werkzeug { display: flex; gap: var(--a-s); flex-wrap: wrap; justify-content: flex-end; }
+.pfeil-knopf {
+  flex: none; width: max(48px, calc(84 * var(--s))); height: max(48px, calc(84 * var(--s)));
+  border-radius: 50%; border: 0; background: var(--weiss); color: var(--navy); cursor: pointer;
+  box-shadow: 0 10px 22px -6px rgba(3, 20, 35, 0.5);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: transform var(--dauer) var(--kurve);
+}
+.pfeil-knopf svg { width: 55%; height: 55%; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pfeil-knopf:active { transform: scale(0.92); }
+.werkzeug-knopf { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0 var(--a-m); }
+.flint-klein { width: 2rem; height: 2rem; border-radius: 50%; object-fit: cover; }
+.flint-satz { max-width: 40rem; margin: 0 auto var(--a-m); padding: var(--a-s) var(--a-m); background: var(--papier); border-radius: var(--r-knopf); }
+@media (max-width: 560px) {
+  .kopf__reihe { flex-wrap: wrap; }
+  .kopf__werkzeug { width: 100%; justify-content: center; }
+}
+
+/* ---------- Fläche: Waage groß, Aufgabe daneben (quer) oder darunter (hoch) ---------- */
+.station-flaeche { display: grid; gap: var(--a-l); align-items: start; max-width: 68rem; margin: 0 auto; }
+@media (orientation: landscape) and (min-width: 820px) {
+  .station-flaeche { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  /* Die Waage bleibt beim Scrollen der rechten Spalte stehen */
+  .station-flaeche > .buehne { position: sticky; top: var(--a-m); }
+}
+.buehne {
+  position: relative; display: grid; gap: var(--a-m); justify-items: center; padding: var(--a-m);
+  border-radius: calc(48 * var(--s)); background: rgba(10, 52, 84, 0.62); border: 2px solid var(--glas-kante);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.aufgabe { margin: 0; max-width: none; }
+.auftrag { margin: 0 0 0.2rem; color: var(--navy); font-size: var(--gr-text); }   /* Arbeitsauftrag in Lesegröße (6c) */
+.flint-aussage { display: flex; align-items: center; gap: var(--a-s); }   /* Flints Satz mit seinem Bild statt grauer Überzeile (6c) */
+.flint-aussage .flint-klein { flex: none; width: 3.25rem; height: 3.25rem; }
+.flint-aussage > div { min-width: 0; }
+.aussage { font-size: var(--gr-text); font-weight: 700; margin: var(--a-xs) 0 var(--a-m); }
+.frage-klein { font-family: var(--schrift-text); font-weight: 700; font-size: var(--gr-label); margin: var(--a-m) 0 var(--a-s); }
+/* ---------- Antworten ---------- */
+.antworten { display: grid; gap: var(--a-s); }
+.antwort-knopf { padding: var(--a-s) var(--a-m); line-height: 1.25; }
+.knopf.ist-richtig, .knopf.ist-richtig[disabled] { background: var(--navy); color: var(--weiss); opacity: 1; }
+.antworten--reihe { grid-template-columns: repeat(3, 1fr); }
+.ist-richtig::after { content: ''; display: inline-block; width: 0.36em; height: 0.72em; margin-left: 0.55em; border-right: 0.18em solid currentColor; border-bottom: 0.18em solid currentColor; transform: translateY(-0.1em) rotate(45deg); }   /* gezeichneter Haken (6c) */
+.rueckmeldung { min-height: 1.4em; font-weight: 700; margin: var(--a-m) 0 0; }
+.rueckmeldung:empty { min-height: 0; margin: 0; }
+.erklaerung { margin: var(--a-s) 0 0; }
+
+/* ---------- Stufenwahl, So geht's, Am Tisch, Rundenende ---------- */
+.stufen-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--a-s); }
+.stufe-knopf { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: var(--a-s) var(--a-m); text-align: left; }
+.stufe-knopf__name { font-family: var(--schrift-name); font-weight: 400; font-size: var(--gr-text); }
+.stufe-knopf__info { font-weight: 400; font-size: var(--gr-klein); display: inline-flex; align-items: center; gap: 0.4rem; }
+.stufe-knopf .stempel-punkt { border-color: var(--navy); }
+.stufe-knopf .stempel-punkt--voll { background: var(--navy); box-shadow: none; }
+.stufe-knopf--empfohlen { border-width: 3px; }
+.so-gehts ol, .am-tisch ol { padding-left: 1.4em; }
+.so-gehts summary h2, .am-tisch summary h2 { display: inline; margin: 0; font-size: var(--gr-text); }
+.so-gehts summary, .am-tisch summary { cursor: pointer; min-height: var(--tippen); display: flex; align-items: center; }
+.rundenende { text-align: center; }
+.rundenende__text { font-size: var(--gr-text); }
+.stempel-gross { width: 8rem; height: 8rem; margin: var(--a-s) auto; opacity: 0.35; }
+.stempel-gross--voll { opacity: 1; }
+.stempel-gross--neu { animation: stempel-leuchten 900ms var(--kurve); }
+@keyframes stempel-leuchten { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+.stempel-bild { width: 100%; height: 100%; }
+.stempel__rand { fill: none; stroke: var(--welle); stroke-width: 4; }
+.stempel__rand--innen { stroke-width: 2; stroke-dasharray: 4 4; }
+.stempel__welle { fill: none; stroke: var(--navy); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Dialog (Hilfe, Wörter) ---------- */
+.dialog { max-width: min(34rem, calc(100vw - 2rem)); border: 0; border-radius: var(--r-papier); padding: var(--a-l); background: var(--papier); color: var(--navy); box-shadow: 0 26px 50px -10px rgba(3, 20, 35, 0.5); }
+.dialog::backdrop { background: rgba(6, 30, 48, 0.6); }
+.dialog h2 { margin-top: 0; font-size: var(--gr-title); }
+.tipp { display: flex; gap: var(--a-m); align-items: flex-start; }
+.tipp .flint-klein { width: 4rem; height: 4rem; }
+.tipp-liste { margin: 0; padding-left: 1.2em; }
+.tipp-liste li + li { margin-top: var(--a-s); }
+.wortspeicher__tabelle { border-collapse: collapse; width: 100%; }
+.wortspeicher__tabelle th, .wortspeicher__tabelle td { text-align: left; padding: var(--a-s) var(--a-m); border-bottom: 1px solid var(--papier-linie); }
+.wortspeicher__tabelle th { white-space: nowrap; }
+
+/* A8: „Lösung gezeigt“ ist ein eigener, ruhiger Zustand (Umriss gestrichelt, ohne Haken), nicht wie „richtig gelöst“ */
+.loesung-gezeigt .knopf.ist-richtig, .loesung-gezeigt .knopf.ist-richtig[disabled] { background: var(--weiss); color: var(--navy); border: 2px dashed var(--navy); opacity: 1; }
+.loesung-gezeigt .ist-richtig::after { content: none; }
+/* A12: Stationstitel genau in der Mitte (Pfeil links und Werkzeuge rechts nehmen gleich viel Platz).
+   Nur, wenn Titel und beide Werkzeuge wirklich nebeneinander passen: Container-Abfrage in rem, wächst also mit der
+   Schrift (Tafelstufe, 200 % Text). Darunter bleibt der Kopf wie vorher (Titel zwischen Pfeil und Werkzeugen). */
+.kopf--station { container: kopf / inline-size; }
+@container kopf (min-width: 50rem) {
+  .kopf__reihe { display: grid; grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr); }
+  .kopf__reihe > .pfeil-knopf { justify-self: start; }
+  .kopf__werkzeug { justify-self: end; flex-wrap: nowrap; }
+}
+/* B13: Rundenende als Höhepunkt: Glasfeld, großer Stempel auf Papier, Flint daneben, ein Hauptknopf, die anderen kleiner */
+.rundenende {
+  max-width: 34rem; margin: var(--a-l) auto; padding: var(--a-l) var(--a-l) var(--a-m); text-align: center; color: var(--weiss);
+  border-radius: calc(56 * var(--s) + 1rem); background: rgba(10, 52, 84, 0.78); border: 2px solid var(--glas-kante);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 26px 50px -10px rgba(3, 20, 35, 0.4);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.rundenende .stempel-gross {
+  width: clamp(9rem, 30vw, 12rem); height: clamp(9rem, 30vw, 12rem); padding: 0.5rem; margin: 0 auto var(--a-m);
+  background: var(--papier); border-radius: 50%; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35), 0 14px 30px -10px rgba(3, 20, 35, 0.5);
+}
+.rundenende .stempel-gross:not(.stempel-gross--voll) { opacity: 0.55; }
+.rundenende__satz { display: flex; align-items: center; justify-content: center; gap: var(--a-m); text-align: left; max-width: 28rem; margin: 0 auto; }
+.rundenende__satz .flint-klein { width: 3.5rem; height: 3.5rem; flex: none; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6); }
+.rundenende__text { margin: 0; font-size: var(--gr-text); line-height: 1.3; }
+.rundenende .knopfreihe { margin-top: var(--a-m); }
+.rundenende__haupt { min-height: max(56px, calc(64 * var(--s))); padding: 0 var(--a-xl, 2rem); font-size: var(--gr-text); background: var(--weiss); color: var(--navy); border-color: var(--weiss); }
+.knopf--klein { font-size: var(--gr-klein); font-weight: 400; padding: 0 var(--a-m); }
+.rundenende .knopf--klein { background: transparent; color: var(--weiss); border-color: rgba(255, 255, 255, 0.6); }
+
+/* ===== Station „Massen vergleichen“ (Etappe 2c) ===== */
+/* Die Waage steht auf einem hellen Arbeitstisch (Papier), damit Navy-Schrift und gedämpfte Steinfarben lesbar sind */
+.buehne--waage { background: var(--papier); border-color: var(--papier-linie); color: var(--navy); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.waage-figur { margin: 0; width: 100%; text-align: center; }
+.waage-figur figcaption { font-size: var(--gr-klein); line-height: 1.35; }
+.waage-figur__inhalt, .waage-figur__name, .waage-figur__summe { margin: var(--a-xs) 0 0; }
+.waage-figur__name { font-weight: 700; }
+.waage-figur__summe { font-weight: 700; }
+.waagen-reihe { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--a-m); width: 100%; }
+/* „Welche Waage?“: drei Waagen brauchen die ganze Breite, die Aufgabe steht darunter (auch quer) */
+@media (orientation: landscape) and (min-width: 820px) {
+  .station-flaeche--breit { grid-template-columns: 1fr; }
+  .station-flaeche--breit > .buehne { position: static; }
+}
+.waage-figur--klein .waage-figur__inhalt { font-size: var(--gr-label); }
+.waage-ergebnis { margin: 0; font-weight: 700; font-size: var(--gr-text); text-align: center; min-height: 1.4em; }
+.waage-ergebnis:empty { min-height: 0; }
+
+/* Vermutungs-Knöpfe: kleine Waage als Zeichen und Text (nie nur ein Zeichen) */
+.vermutung-knopf { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; padding: var(--a-s); text-align: center; line-height: 1.2; }
+.vermutung-zeichen { width: 3rem; height: 2rem; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.knopf[aria-pressed="true"] { background: var(--navy); color: var(--weiss); }
+.loesung-gezeigt .knopf[aria-pressed="true"]:not(.ist-richtig) { background: var(--papier); color: var(--navy); border-style: solid; }
+.wiegen-knopf { min-width: 9rem; }
+@media (max-width: 420px) { .antworten--reihe { grid-template-columns: 1fr; } .vermutung-knopf { flex-direction: row; } }
+
+/* Muscheln und Reihe (knifflig) */
+.muscheln { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--a-s); }
+.muschel-knopf { width: 100%; display: inline-flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: var(--a-s); line-height: 1.2; }
+.muschel-knopf__wo { font-weight: 400; font-size: var(--gr-klein); }
+.muschel-symbol { width: 3rem; height: 2.6rem; flex: none; }
+.muschel-symbol--jakobs .wb-muschel__grund { fill: #e9cdb8; }
+.muschel-symbol--schnecke .wb-muschel__grund { fill: #e4d6b4; }
+.muschel-symbol--mies .wb-muschel__grund { fill: #b9c3cf; }
+.reihe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr)); gap: var(--a-s); }
+.reihe-platz { width: 100%; min-height: 5.5rem; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1rem; padding: var(--a-xs); line-height: 1.2; }
+.reihe-platz--leer { border-style: dashed; background: transparent; }
+.reihe-platz__nr { font-size: var(--gr-klein); font-weight: 700; }
+.reihe-platz__leer { font-weight: 400; font-size: var(--gr-klein); }
+.reihe-rand { display: flex; justify-content: space-between; margin: var(--a-xs) 0 0; font-size: var(--gr-klein); }
+.reihe-rand span::before { content: '← '; }
+.reihe-rand span + span::before { content: ''; }
+.reihe-rand span + span::after { content: ' →'; }
+
+/* ===== Etappe 3: Gewichtssteine, Steinkasten, Ziffern-Tastatur ===== */
+/* Gewichtssteine wie im Buch: dunkles Metall, helle Zahl (Kontrast AA: #f5f3ec auf #3d4a52 etwa 8 : 1) */
+.wb-stein__koerper { fill: #3d4a52; stroke: #22292e; stroke-width: 1.5; }
+.wb-stein__griff { fill: #56656e; stroke: #22292e; stroke-width: 1.5; }
+.wb-stein__kante { stroke: rgba(255, 255, 255, 0.35); stroke-width: 2; stroke-linecap: round; }
+.wb-stein__zahl { font: 700 13px var(--schrift-text); text-anchor: middle; fill: #f5f3ec; }
+.wb-stein__zahl--klein { font-size: 11px; }
+
+.steinkasten { margin-top: var(--a-m); }
+.steinkasten__liste { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); gap: var(--a-xs); }
+.stein-knopf { width: 100%; min-height: 4.2rem; display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.1rem; padding: 0.3rem 0.2rem; line-height: 1.1; font-size: var(--gr-label); }
+.stein-symbol { width: 2.6rem; height: 2.2rem; }
+.stein-knopf[disabled] { opacity: 0.4; }
+.auf-schale { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--a-xs); }
+.auf-schale .knopf { min-width: 3.6rem; padding: 0 var(--a-s); }
+
+.ziffern { display: grid; gap: var(--a-s); max-width: 20rem; }
+.ziffern__anzeige { display: flex; align-items: baseline; gap: 0.4rem; }
+.ziffern__feld { font: inherit; font-size: var(--gr-title); font-weight: 700; width: 7ch; min-height: var(--tippen); text-align: right; padding: 0 var(--a-s); border: 2px solid var(--navy); border-radius: var(--r-knopf); background: var(--weiss); color: var(--navy); }
+.ziffern__einheit { font-size: var(--gr-title); font-weight: 700; }
+.ziffern__tasten { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--a-xs); }
+.ziffern__tasten .knopf { min-height: 3.2rem; font-size: var(--gr-text); padding: 0; }
+.ziffern__tasten .ziffern__fertig { grid-column: span 3; }
+/* Gramm oder Kilogramm: der Satz groß auf dem Arbeitstisch */
+.einheit-satz { margin: var(--a-l) var(--a-m); font-size: var(--gr-title); font-weight: 700; text-align: center; }
+
+/* ===== Logbuch (Etappe 4), übernommen aus der Chancenbucht css/station.css ===== */
+/* ---------- Logbuch (js/logbuch.js) ---------- */
+.logbuch { max-width: 52rem; margin-left: auto; margin-right: auto; }
+.logbuch + .logbuch { margin-top: var(--a-l); }
+.logbuch__tafel { list-style: none; margin: 0; padding: 0; }
+.logbuch__zeile { display: grid; grid-template-columns: minmax(8rem, 1fr) auto auto; gap: var(--a-m); align-items: center; padding: var(--a-s) 0; border-bottom: 1px solid var(--papier-linie); }
+.logbuch__zeile:last-child { border-bottom: 0; }
+.logbuch__station { margin: 0; font-size: var(--gr-text); }
+.logbuch__stempel { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--a-s); }
+.logbuch__stufe { width: 4.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; font-size: var(--gr-klein); text-align: center; }
+.logbuch__bild { width: 3.6rem; height: 3.6rem; border-radius: 50%; border: 2px dashed var(--tinte-leise); display: block; }
+.logbuch__stufe--voll .logbuch__bild { border: 0; }
+.logbuch__wort { font-weight: 700; }
+.logbuch__offen { color: var(--tinte-leise); font-size: 0.85em; }
+.logbuch__kann { list-style: none; margin: 0; padding: 0; }
+.logbuch__kann h3 { margin: var(--a-m) 0 var(--a-xs); font-size: var(--gr-label); }
+.logbuch__kann ul { margin: 0; padding-left: 1.2em; }
+.logbuch__kann ul li + li { margin-top: var(--a-xs); }
+@media (max-width: 640px) {
+  .logbuch__zeile { grid-template-columns: 1fr; justify-items: start; }
+}
+.logbuch-knopf { display: inline-flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+.logbuch-knopf .buch { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.logbuch-knopf__zahl { font-weight: 400; font-size: var(--gr-klein); opacity: 0.9; }
+
+.logbuch__stempel { flex-wrap: wrap; }
+.logbuch__zeile > * { min-width: 0; }
+.logbuch__offen { font-size: 0.95rem; }
+.logbuch__stufe { width: 5rem; }
+.antworten--zwei { grid-template-columns: repeat(2, 1fr); }
