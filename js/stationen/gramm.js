@@ -157,7 +157,7 @@
   function neuBelegen(a) {
     const s = a.zustand;
     waage.setze(links(a), rechtsMassen(a, s).map(m => ({ art: 'stein', masse: m })));
-    s.gewogen = false; s.ansage = '';
+    s.gewogen = false; s.ansage = ''; s.rueck = '';   /* iPad-Befund Ingo 16.11.2026: alter Satz passte nicht mehr zur festgestellten Waage */
   }
   function legeStein(i) {
     const a = aufgabe(), s = a.zustand;
@@ -165,10 +165,11 @@
     s.gelegt.push(i); neuBelegen(a); zeichne(); T().fokus(ctx, '[data-gr="wiegen"]');
     ctx.ansagen(`${g(SATZ()[i])} liegt auf der rechten Schale.`);
   }
-  function zurueck(i) {
+  function zurueck(i, ausBild = false) {
     const a = aufgabe(), s = a.zustand;
     if (s.phase !== 'legen' || s.fertig) return;
-    s.gelegt = s.gelegt.filter(x => x !== i); neuBelegen(a); zeichne(); T().fokus(ctx, `[data-gr="stein"][data-i="${i}"]`);
+    s.gelegt = s.gelegt.filter(x => x !== i); neuBelegen(a); zeichne();
+    if (!ausBild) T().fokus(ctx, `[data-gr="stein"][data-i="${i}"]`);
     ctx.ansagen(`${g(SATZ()[i])} liegt wieder im Kasten.`);
   }
   function alleZurueck() {
@@ -291,6 +292,8 @@
   ];
 
   function bedienen(e) {
+    const imBild = aufgabe() ? T().steinImBild(e, aufgabe().zustand.gelegt) : -1;
+    if (imBild >= 0) { zurueck(imBild, true); return true; }
     const b = e.target.closest('[data-gr]');
     if (!b || b.disabled) return false;
     const was = b.dataset.gr;

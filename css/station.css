@@ -222,6 +222,8 @@
 .wb-stein__kante { stroke: rgba(255, 255, 255, 0.35); stroke-width: 2; stroke-linecap: round; }
 .wb-stein__zahl { font: 700 13px var(--schrift-text); text-anchor: middle; fill: #f5f3ec; }
 .wb-stein__zahl--klein { font-size: 11px; }
+/* Steine der rechten Schale lassen sich im Bild antippen (zurücklegen), iPad-Befund 16.11.2026 */
+.wb-schale--rechts .wb-stein { cursor: pointer; }
 
 .steinkasten { margin-top: var(--a-m); }
 .steinkasten__liste { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); gap: var(--a-xs); }

@@ -173,6 +173,16 @@
         <p class="knopfreihe"><button type="button" class="knopf knopf--klein" data-${praefix}="alle-zurueck"${gesperrt ? ' disabled' : ''}>Alle Steine zurück</button></p>` : ''}
       </div>`;
   }
+  /* Tap auf einen Stein der rechten Schale im Waagenbild (iPad-Befund Ingo 16.11.2026): Kinder tippen dort,
+     nicht nur auf die Knöpfe darunter. Gibt den Index (in gelegt) des Steins zurück, der zurückgelegt wird, sonst -1.
+     Nur selbst gelegte Steine (beim Ergänzen bleiben die vorgegebenen liegen). Die Knöpfe bleiben für Tastatur und VoiceOver. */
+  function steinImBild(e, gelegt) {
+    const st = e.target && e.target.closest ? e.target.closest('.wb-schale--rechts .wb-stein') : null;
+    if (!st || !gelegt) return -1;
+    const m = Number(st.getAttribute('data-masse')), satz = C().waage.gewichtssteine;
+    const passend = gelegt.filter(i => satz[i] === m);
+    return passend.length ? passend[passend.length - 1] : -1;
+  }
   /* Ziffern-Tastatur (Etappe 3): eigene Tasten statt iPad-Tastatur, dazu ein normales Feld für Tastatur und Screenreader */
   function ziffern(ctx, { praefix, frage, einheit = 'g', gesperrt = false, wert = '' }) {
     return `
@@ -210,5 +220,5 @@
   });
   const zifferWert = ctx => { const f = ctx.app.querySelector('#ziffern-feld'); const v = f ? f.value.replace(/\D/g, '') : ''; return v === '' ? null : Number(v); };
 
-  KW.teile = { steinkasten, ziffern, zifferTaste, zifferWert, PFEIL, STUFENNAME, kopf, aufklapper, empfohlen, erstesMal, stufenListe, rundenende, stempel, dialog, tippDialog, woerter, fokus, aufleuchten };
+  KW.teile = { steinkasten, steinImBild, ziffern, zifferTaste, zifferWert, PFEIL, STUFENNAME, kopf, aufklapper, empfohlen, erstesMal, stufenListe, rundenende, stempel, dialog, tippDialog, woerter, fokus, aufleuchten };
 })();
