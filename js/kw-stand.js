@@ -87,7 +87,8 @@
     speicher: S, mische, neuanfang,
     brauchtAngaben: false,
     schreibPauseMs: C.cloud.schreibPauseMs,
-    nameMax: C.nameMaxLaenge
+    nameMax: C.nameMaxLaenge,
+    freigabe: C.cloud.freigabe
   });
 
   const schluesselOk = (station, stufe) => SCHLUESSEL.includes(`${station}:${stufe}`);

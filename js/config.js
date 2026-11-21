@@ -32,7 +32,8 @@
     cloud: {
       kinder: 'kinder',        /* kinder/<code>: Vorname, von der Lehrkraft angelegt (nur lesen) */
       stand: 'kw_stand',       /* kw_stand/<code>: der Stand dieses Kindes in der Kieselwaage */
-      schreibPauseMs: 2500     /* so lange nach der letzten Änderung warten, dann gebündelt schreiben */
+      schreibPauseMs: 2500,    /* so lange nach der letzten Änderung warten, dann gebündelt schreiben */
+      freigabe: 'kieselwaage'  /* Schlüssel im Lehrerbereich des Perlentauchers (oeffentlich/plattformen), seit 21.11.2026 */
     },
 
     /* Stationen und Stufen (Mini-Spec Etappe 1, Ingo 15.11.2026). Die Ids sind Teil der Firebase-Regeln
